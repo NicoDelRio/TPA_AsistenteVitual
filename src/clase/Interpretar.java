@@ -398,7 +398,6 @@ public class Interpretar implements TipoMensaje {
 		return respuesta;
 	}
 
-
 	@Override
 	public boolean esTiempoDesde_Años(String mensaje) {
 		if(mensaje.contains(normalizado(" cuántos años pasaron desde el")))
@@ -600,15 +599,12 @@ public class Interpretar implements TipoMensaje {
 	public String calculoMatematico(String mensaje, String usuario, String asistente) {
 		String respuesta = null;
 		try {
-			// TODO Auto-generated method stub
-			
-			
-			
-			
-			
-			
-			
-			
+			Calculo calc = new Calculo();
+			double resultado = calc.calcular(mensaje);
+			if(resultado % 1 == 0) // Si es entero devolver sin decimales
+				respuesta =  usuario + " " + Math.round(resultado);
+			else // Sino devolver con decimales
+				respuesta =  usuario + " " + resultado;			
 		} catch (Exception e) {
 			return mensajeSinSentido(usuario);
 		}
@@ -616,13 +612,19 @@ public class Interpretar implements TipoMensaje {
 	}
 
 
+	@Override
+	public boolean esTiempoHasta(String mensaje) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 
+	@Override
+	public String tiempoHasta(String mensaje, String usuario) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-
-
-
-	
 	
 	
 	
