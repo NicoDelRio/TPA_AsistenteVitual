@@ -5,93 +5,93 @@ import java.text.ParseException;
 //import java.util.concurrent.TimeUnit;
 
 public class Interpretar implements TipoMensaje {
-	
+
 	public String respuesta(String mensaje_original, String usuario, String asistente) {
 
-//		Se normaliza el mensaje (pasa todo a minúscula, se sacan acentos y caracteres extraños)
+		//		Se normaliza el mensaje (pasa todo a minúscula, se sacan acentos y caracteres extraños)
 		String mensaje = normalizado(mensaje_original);
-		
-//		Se hacen todas las series de preguntas (esSaludo, esAgradecimiento, etc).
-//		En caso afirmativo de alguna pregunta, return respuesta (s/ la pregunta).
-//		Si ninguna respuesta es afirmativa, return mensajeSinSentido(usuario).
-		
+
+		//		Se hacen todas las series de preguntas (esSaludo, esAgradecimiento, etc).
+		//		En caso afirmativo de alguna pregunta, return respuesta (s/ la pregunta).
+		//		Si ninguna respuesta es afirmativa, return mensajeSinSentido(usuario).
+
 		if(esMensajeNoDirigidoAsistente(mensaje, asistente))
 			return mensajeNoDirigidoAsistente(usuario, asistente);
-		
+
 		if(esSaludo(mensaje))
 			return saludar(usuario);
 
 		if(esAgradecimiento(mensaje))
 			return agradecer(usuario);
-		
+
 		if(esDiaActual_Hora(mensaje))
 			return diaActual_Hora(usuario);
-		
+
 		if(esDiaActual_Fecha(mensaje))
 			return diaActual_Fecha(usuario);
 
 		if(esDiaActual_DiaSemana(mensaje))
 			return diaActual_DiaSemana(usuario);
-		
+
 		if(esFecha_Mañana(mensaje))
 			return fecha_Mañana(usuario);
 
 		if(esFecha_DiaDentro_X(mensaje))
 			return fecha_DiaDentro_X(mensaje, usuario);
-		
+
 		if(esFecha_Ayer(mensaje))
 			return fecha_Ayer(usuario);
-		
+
 		if(esFecha_DiaHace_X(mensaje))
 			return fecha_DiaHace_X(mensaje, usuario);
-		
+
 		if(esTiempoDesde_Dias(mensaje))
 			return tiempoDesde_Dias(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoDesde_Semanas(mensaje))
 			return tiempoDesde_Semanas(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoDesde_Meses(mensaje))
 			return tiempoDesde_Meses(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoDesde_Años(mensaje))
 			return tiempoDesde_Años(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoHasta_Dias(mensaje))
 			return tiempoHasta_Dias(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoHasta_Semanas(mensaje))
 			return tiempoHasta_Semanas(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoHasta_Meses(mensaje))
 			return tiempoHasta_Meses(mensaje_original, usuario, asistente);
-		
+
 		if(esTiempoHasta_Años(mensaje))
 			return tiempoHasta_Años(mensaje_original, usuario, asistente);
-		
-		
-		
+
+
+
 		if(esCalculoMatematico(mensaje))
 			return calculoMatematico(mensaje_original, usuario, asistente);
-		
-		
-		
-		
-		
+
+
+
+
+
 		return mensajeSinSentido(usuario);
-		
+
 	}
-	
+
 
 	private static String normalizado(String texto_original) {	
-//		limpiar de tildes
-        String texto_normalizado = Normalizer.normalize(texto_original.trim().toLowerCase(), Normalizer.Form.NFD);
-//      eliminar char que no son ascii salvo ¿?!¡ñ
-        texto_normalizado = texto_normalizado.replaceAll("[^\\p{ASCII}(N\u0303)(n\u0303)(\u00A1)(\u00BF)(\u00B0)(U\u0308)(u\u0308)]", "");
-        texto_normalizado = Normalizer.normalize(texto_normalizado, Normalizer.Form.NFC);        
-        return texto_normalizado;
+		//		limpiar de tildes
+		String texto_normalizado = Normalizer.normalize(texto_original.trim().toLowerCase(), Normalizer.Form.NFD);
+		//      eliminar char que no son ascii salvo ¿?!¡ñ
+		texto_normalizado = texto_normalizado.replaceAll("[^\\p{ASCII}(N\u0303)(n\u0303)(\u00A1)(\u00BF)(\u00B0)(U\u0308)(u\u0308)]", "");
+		texto_normalizado = Normalizer.normalize(texto_normalizado, Normalizer.Form.NFC);        
+		return texto_normalizado;
 	}
-	
+
 	private static int soloNumero(String texto_original) {
 		int numero = 0;
 		char[] v_numeros = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -102,9 +102,9 @@ public class Interpretar implements TipoMensaje {
 					numero = numero * 10 + Integer.parseInt( "" + c);
 			}
 		} 
-        return numero;
+		return numero;
 	}
-	
+
 
 	@Override
 	public String mensajeSinSentido(String usuario) {
@@ -127,7 +127,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esSaludo(String mensaje) {
 		String[] v_Saludo = {"hola", "buen día", "buenos días", "buenas", "que tal", "tardes", "noches", "hey"};
-		
+
 		for(String saludo: v_Saludo)
 			if(mensaje.contains(normalizado(saludo)))
 				return true;
@@ -143,7 +143,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esAgradecimiento(String mensaje) {
 		String[] v_Agradecimiento = {"gracias"};
-		
+
 		for(String agradecimiento: v_Agradecimiento)
 			if(mensaje.contains(normalizado(agradecimiento)))
 				return true;
@@ -158,7 +158,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esDiaActual_Hora(String mensaje) {
 		String[] v_DiaActual_Hora = {"qué hora es", "la hora"};
-		
+
 		for(String diaActual_Hora: v_DiaActual_Hora)
 			if(mensaje.contains(normalizado(diaActual_Hora)))
 				return true;
@@ -175,7 +175,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esDiaActual_Fecha(String mensaje) {
 		String[] v_DiaActual_Fecha = {"qué día es", "la fecha", "fecha es hoy"};
-		
+
 		for(String diaActual_Fecha: v_DiaActual_Fecha)
 			if(mensaje.contains(normalizado(diaActual_Fecha)))
 				return true;
@@ -193,7 +193,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esDiaActual_DiaSemana(String mensaje) {
 		String[] v_DiaActual_DiaSemana = {"día de la semana es", "día es de la semana"};
-		
+
 		for(String diaActual_DiaSemana: v_DiaActual_DiaSemana)
 			if(mensaje.contains(normalizado(diaActual_DiaSemana)))
 				return true;
@@ -211,7 +211,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esFecha_Mañana(String mensaje) {
 		String[] v_Fecha_Mañana = {"mañana que día", "es mañana", "sera mañana"};
-		
+
 		for(String fecha_Mañana : v_Fecha_Mañana)
 			if(mensaje.contains(normalizado(fecha_Mañana)))
 				return true;
@@ -251,7 +251,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esFecha_Ayer(String mensaje) {
 		String[] v_Fecha_Ayer = {"ayer fue", "día fue ayer"};
-		
+
 		for(String fecha_Ayer : v_Fecha_Ayer)
 			if(mensaje.contains(normalizado(fecha_Ayer)))
 				return true;
@@ -587,7 +587,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public boolean esCalculoMatematico(String mensaje) {
 		String[] v_Calculo = {"cuánto es", "cuanto da"};
-		
+
 		for(String calculo: v_Calculo)
 			if(mensaje.contains(normalizado(calculo)))
 				return true;
@@ -625,9 +625,9 @@ public class Interpretar implements TipoMensaje {
 		return null;
 	}
 
-	
-	
-	
-	
-	
+
+
+
+
+
 }
