@@ -76,8 +76,13 @@ public class Interpretar implements TipoMensaje {
 
 
 
-
-
+		if(esTiempoDesde(mensaje))
+			return tiempoDesde(mensaje, usuario);
+		
+		if(esTiempoHasta(mensaje))
+			return tiempoHasta(mensaje, usuario);
+		
+		
 		return mensajeSinSentido(usuario);
 
 	}
@@ -626,8 +631,18 @@ public class Interpretar implements TipoMensaje {
 	}
 
 
+	@Override
+	public boolean esTiempoDesde(String mensaje) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 
+	@Override
+	public String tiempoDesde(String mensaje, String usuario) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 }

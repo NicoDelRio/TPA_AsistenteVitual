@@ -59,9 +59,12 @@ public interface TipoMensaje {
 	public abstract boolean esTiempoHasta_Años(String mensaje);
 	public abstract String tiempoHasta_Años(String mensaje, String usuario, String asistente);
 	
+	public abstract boolean esTiempoDesde(String mensaje);
+	public abstract String tiempoDesde(String mensaje, String usuario);
+	
 	public abstract boolean esTiempoHasta(String mensaje);
 	public abstract String tiempoHasta(String mensaje, String usuario);
-	
+			
 //	public abstract boolean esEfemeride(String mensaje);
 //	public abstract String efemeride(String mensaje, String usuario, String asistente);
 	
