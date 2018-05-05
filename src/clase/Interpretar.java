@@ -1,6 +1,8 @@
 package clase;
 
 import java.text.Normalizer;
+import java.text.ParseException;
+//import java.util.concurrent.TimeUnit;
 
 public class Interpretar implements TipoMensaje {
 	
@@ -43,13 +45,34 @@ public class Interpretar implements TipoMensaje {
 		if(esFecha_DiaHace_X(mensaje))
 			return fecha_DiaHace_X(mensaje, usuario);
 		
-		if(esTiempoDesde(mensaje))
-			return tiempoDesde(mensaje, usuario);
+		if(esTiempoDesde_Dias(mensaje))
+			return tiempoDesde_Dias(mensaje_original, usuario, asistente);
 		
-		if(esTiempoHasta(mensaje))
-			return tiempoHasta(mensaje, usuario);
+		if(esTiempoDesde_Semanas(mensaje))
+			return tiempoDesde_Semanas(mensaje_original, usuario, asistente);
+		
+		if(esTiempoDesde_Meses(mensaje))
+			return tiempoDesde_Meses(mensaje_original, usuario, asistente);
+		
+		if(esTiempoDesde_Años(mensaje))
+			return tiempoDesde_Años(mensaje_original, usuario, asistente);
+		
+		if(esTiempoHasta_Dias(mensaje))
+			return tiempoHasta_Dias(mensaje_original, usuario, asistente);
+		
+		if(esTiempoHasta_Semanas(mensaje))
+			return tiempoHasta_Semanas(mensaje_original, usuario, asistente);
+		
+		if(esTiempoHasta_Meses(mensaje))
+			return tiempoHasta_Meses(mensaje_original, usuario, asistente);
+		
+		if(esTiempoHasta_Años(mensaje))
+			return tiempoHasta_Años(mensaje_original, usuario, asistente);
 		
 		
+		
+		if(esCalculoMatematico(mensaje))
+			return calculoMatematico(mensaje_original, usuario, asistente);
 		
 		
 		
@@ -163,7 +186,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public String diaActual_Fecha(String usuario) {
 		Fecha diaActual = new Fecha();
-		return usuario + " hoy es " + diaActual.fecha(diaActual.formato_fecha[0]);
+		return usuario + " hoy es " + diaActual.fechaToString(diaActual.formato_fecha[0]);
 	}
 
 
@@ -199,7 +222,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public String fecha_Mañana(String usuario) {
 		Fecha date = new Fecha(0, 0, 1, 0, 0, 0);
-		return usuario + " será el " + date.fecha(date.formato_fecha[4]);
+		return usuario + " será el " + date.fechaToString(date.formato_fecha[4]);
 	}
 
 
@@ -221,7 +244,7 @@ public class Interpretar implements TipoMensaje {
 		if(mensaje.contains(normalizado("años?")) || mensaje.contains(normalizado("año?")))
 			año = soloNumero(mensaje);
 		Fecha date = new Fecha(año, mes, dia, 0, 0, 0);
-		return usuario + " será el " + date.fecha(date.formato_fecha[4]);
+		return usuario + " será el " + date.fechaToString(date.formato_fecha[4]);
 	}
 
 
@@ -239,7 +262,7 @@ public class Interpretar implements TipoMensaje {
 	@Override
 	public String fecha_Ayer(String usuario) {
 		Fecha date = new Fecha(0, 0, -1, 0, 0, 0, "PASADO");
-		return usuario + " fue el " + date.fecha(date.formato_fecha[4]);
+		return usuario + " fue el " + date.fechaToString(date.formato_fecha[4]);
 	}
 
 
@@ -261,38 +284,342 @@ public class Interpretar implements TipoMensaje {
 		if(mensaje.contains(normalizado("años?")) || mensaje.contains(normalizado("año?")))
 			año = soloNumero(mensaje);
 		Fecha date = new Fecha(-año, -mes, -dia, 0, 0, 0, "PASADO");
-		return usuario + " fue el " + date.fecha(date.formato_fecha[4]);
+		return usuario + " fue el " + date.fechaToString(date.formato_fecha[4]);
 	}
 
 
 	@Override
-	public boolean esTiempoDesde(String mensaje) {
-		if(mensaje.contains(normalizado("cuántos días pasaron desde")))
+	public boolean esTiempoDesde_Dias(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos días pasaron desde el")))
 			return true;
 		return false;
 	}
 
 
 	@Override
-	public String tiempoDesde(String mensaje, String usuario) {
-		// TODO Auto-generated method stub
-		return "@delucas entre el 1 de abril de 2017 y el 1 de abril de 2018 pasaron 365 días";
+	public String tiempoDesde_Dias(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos días pasaron desde el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaPasado = null;
+		try {
+			fechaPasado = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int dias = fechaPasado.restaFechas_Dias(fechaActual);
+			if (dias < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaPasado.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy") + (dias != 1 ? " pasaron "  : " paso " ) + dias ;
+			respuesta += (dias != 1 ? " días" : " día");
+		} catch (ParseException e1) {
+			try {
+				fechaPasado = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int dias = fechaPasado.restaFechas_Dias(fechaActual);
+				if (dias < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (dias != 1 ? " pasaron "  : " paso " ) + dias ;
+				respuesta += (dias != 1 ? " días" : " día");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
 	}
 
 
 	@Override
-	public boolean esTiempoHasta(String mensaje) {
-		if(mensaje.contains(normalizado("cuántos días faltan para")))
+	public boolean esTiempoDesde_Semanas(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántas semanas pasaron desde el")))
 			return true;
 		return false;
 	}
 
 
 	@Override
-	public String tiempoHasta(String mensaje, String usuario) {
-		// TODO Auto-generated method stub
-		return null;
+	public String tiempoDesde_Semanas(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántas semanas pasaron desde el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaPasado = null;
+		try {
+			fechaPasado = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int semanas = fechaPasado.restaFechas_Semanas(fechaActual);
+			if (semanas < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaPasado.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy") + (semanas != 1 ? " pasaron "  : " paso " ) + semanas ;
+			respuesta +=  (semanas != 1 ? " semanas" : " semana");
+		} catch (ParseException e1) {
+			try {
+				fechaPasado = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int semanas = fechaPasado.restaFechas_Semanas(fechaActual);
+				if (semanas < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (semanas != 1 ? " pasaron "  : " paso " ) + semanas ;
+				respuesta +=  (semanas != 1 ? " semanas" : " semana");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
 	}
+
+
+	@Override
+	public boolean esTiempoDesde_Meses(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos meses pasaron desde el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoDesde_Meses(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos meses pasaron desde el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaPasado = null;
+		try {
+			fechaPasado = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int meses = fechaPasado.restaFechas_Meses(fechaActual);
+			if (meses < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaPasado.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy") + (meses != 1 ? " pasaron "  : " paso " ) + meses ;
+			respuesta +=  (meses != 1 ? " meses" : " mes");
+		} catch (ParseException e1) {
+			try {
+				fechaPasado = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int meses = fechaPasado.restaFechas_Meses(fechaActual);
+				if (meses < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (meses != 1 ? " pasaron "  : " paso " ) + meses ;
+				respuesta +=  (meses != 1 ? " meses" : " mes");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+	@Override
+	public boolean esTiempoDesde_Años(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos años pasaron desde el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoDesde_Años(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos años pasaron desde el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaPasado = null;
+		try {
+			fechaPasado = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int años = fechaPasado.restaFechas_Años(fechaActual);
+			if (años < 0)
+				return mensajeSinSentido(usuario);			
+			respuesta  = usuario + " entre el " + fechaPasado.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy") + (años != 1 ? " pasaron "  : " paso " ) + años ;
+			respuesta +=  (años != 1 ? " años" : " año");
+		} catch (ParseException e1) {
+			try {
+				fechaPasado = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int años = fechaPasado.restaFechas_Años(fechaActual);
+				if (años < 0)
+					return mensajeSinSentido(usuario);			
+				respuesta  = usuario + (años != 1 ? " pasaron "  : " paso " ) + años ;
+				respuesta +=  (años != 1 ? " años" : " año");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+	@Override
+	public boolean esTiempoHasta_Dias(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos días faltan para el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoHasta_Dias(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos días faltan para el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaFuturo = null;
+		try {
+			fechaFuturo = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int dias = fechaActual.restaFechas_Dias(fechaFuturo);
+			if (dias < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaFuturo.fechaToString("d 'de' MMMMM 'de' yyyy") + (dias != 1 ? " faltan "  : " falta " ) + dias ;
+			respuesta += (dias != 1 ? " días" : " día");
+		} catch (ParseException e1) {
+			try {
+				fechaFuturo = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int dias = fechaActual.restaFechas_Dias(fechaFuturo);
+				if (dias < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (dias != 1 ? " faltan "  : " falta " ) + dias ;
+				respuesta +=  (dias != 1 ? " días" : " día");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+	@Override
+	public boolean esTiempoHasta_Semanas(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántas semanas faltan para el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoHasta_Semanas(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántas semanas faltan para el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaFuturo = null;
+		try {
+			fechaFuturo = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int semanas = fechaActual.restaFechas_Semanas(fechaFuturo);
+			if (semanas < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaFuturo.fechaToString("d 'de' MMMMM 'de' yyyy") + (semanas != 1 ? " faltan "  : " falta " ) + semanas ;
+			respuesta += (semanas != 1 ? " semanas" : " semana");
+		} catch (ParseException e1) {
+			try {
+				fechaFuturo = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int semanas = fechaActual.restaFechas_Semanas(fechaFuturo);
+				if (semanas < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (semanas != 1 ? " faltan "  : " falta " ) + semanas ;
+				respuesta += (semanas != 1 ? " semanas" : " semana");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+	@Override
+	public boolean esTiempoHasta_Meses(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos meses faltan para el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoHasta_Meses(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos meses faltan para el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaFuturo = null;
+		try {
+			fechaFuturo = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int meses = fechaActual.restaFechas_Meses(fechaFuturo);
+			if (meses < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaFuturo.fechaToString("d 'de' MMMMM 'de' yyyy") + (meses != 1 ? " faltan "  : " falta " ) + meses ;
+			respuesta += (meses != 1 ? " meses" : " mes");
+		} catch (ParseException e1) {
+			try {
+				fechaFuturo = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int meses = fechaActual.restaFechas_Meses(fechaFuturo);
+				if (meses < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (meses != 1 ? " faltan "  : " falta " ) + meses ;
+				respuesta += (meses != 1 ? " meses" : " mes");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+	@Override
+	public boolean esTiempoHasta_Años(String mensaje) {
+		if(mensaje.contains(normalizado(" cuántos años faltan para el")))
+			return true;
+		return false;
+	}
+
+
+	@Override
+	public String tiempoHasta_Años(String mensaje, String usuario, String asistente) {
+		String preguntaTiempo = "' cuántos años faltan para el'", respuesta;
+		Fecha fechaActual = new Fecha();
+		Fecha fechaFuturo = null;
+		try {
+			fechaFuturo = new Fecha(mensaje.replace("" + asistente, ""),preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+			int años = fechaActual.restaFechas_Años(fechaFuturo);
+			if (años < 0)
+				return mensajeSinSentido(usuario);
+			respuesta  = usuario + " entre el " + fechaActual.fechaToString("d 'de' MMMMM 'de' yyyy");
+			respuesta += " y el " + fechaFuturo.fechaToString("d 'de' MMMMM 'de' yyyy") + (años != 1 ? " faltan "  : " falta " ) + años ;
+			respuesta += (años != 1 ? " años" : " año");
+		} catch (ParseException e1) {
+			try {
+				fechaFuturo = new Fecha(mensaje.replace("" + asistente, "").replace("?", "")+ " de " + fechaActual.getAño() + "?",preguntaTiempo + " d 'de' MMMMM 'de' yyyy'?'");
+				int años = fechaActual.restaFechas_Años(fechaFuturo);
+				if (años < 0)
+					return mensajeSinSentido(usuario);
+				respuesta  = usuario + (años != 1 ? " faltan "  : " falta " ) + años ;
+				respuesta += (años != 1 ? " años" : " año");
+			} catch (ParseException e2) {
+				return mensajeSinSentido(usuario);
+			}
+		}
+		return respuesta;
+	}
+
+
+
+	@Override
+	public boolean esCalculoMatematico(String mensaje) {
+		String[] v_Calculo = {"cuánto es", "cuanto da"};
+		
+		for(String calculo: v_Calculo)
+			if(mensaje.contains(normalizado(calculo)))
+				return true;
+		return false;
+	}
+
+
+	@Override
+	public String calculoMatematico(String mensaje, String usuario, String asistente) {
+		String respuesta = null;
+		try {
+			// TODO Auto-generated method stub
+			
+			
+			
+			
+			
+			
+			
+			
+		} catch (Exception e) {
+			return mensajeSinSentido(usuario);
+		}
+		return respuesta;
+	}
+
+
+
+
+
+
 
 
 	
