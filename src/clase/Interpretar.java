@@ -69,18 +69,8 @@ public class Interpretar implements TipoMensaje {
 		if(esTiempoHasta_Años(mensaje))
 			return tiempoHasta_Años(mensaje_original, usuario, asistente);
 
-
-
 		if(esCalculoMatematico(mensaje))
 			return calculoMatematico(mensaje_original, usuario, asistente);
-
-
-
-		if(esTiempoDesde(mensaje))
-			return tiempoDesde(mensaje, usuario);
-		
-		if(esTiempoHasta(mensaje))
-			return tiempoHasta(mensaje, usuario);
 		
 		
 		return mensajeSinSentido(usuario);
@@ -614,34 +604,6 @@ public class Interpretar implements TipoMensaje {
 			return mensajeSinSentido(usuario);
 		}
 		return respuesta;
-	}
-
-
-	@Override
-	public boolean esTiempoHasta(String mensaje) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-
-	@Override
-	public String tiempoHasta(String mensaje, String usuario) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public boolean esTiempoDesde(String mensaje) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-
-	@Override
-	public String tiempoDesde(String mensaje, String usuario) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 
