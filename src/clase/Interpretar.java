@@ -49,7 +49,8 @@ public class Interpretar implements TipoMensaje {
 		if(esTiempoHasta(mensaje))
 			return tiempoHasta(mensaje, usuario);
 		
-		
+		if(esUnaCuenta(mensaje))
+			return mostrarResultado(mensaje, usuario);
 		
 		
 		
@@ -294,8 +295,22 @@ public class Interpretar implements TipoMensaje {
 		return null;
 	}
 
-
 	
+	@Override
+	public boolean esUnaCuenta(String mensaje) {
+		return mensaje.contains("cuánto es") || mensaje.contains("cuanto es");
+	}
+
+	@Override
+	public String mostrarResultado(String expresion, String usuario) {
+		Calculo calc = new Calculo();
+		double resultado = calc.calcular(expresion);
+		if(resultado % 1 == 0) // Si es entero devolver sin decimales
+			return usuario + " " + Math.round(resultado);
+		else // Sino devolver con decimales
+			return usuario + " " + resultado;
+	}
+
 	
 	
 	

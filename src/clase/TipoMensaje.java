@@ -40,6 +40,9 @@ public interface TipoMensaje {
 
 	public abstract boolean esTiempoHasta(String mensaje);
 	public abstract String tiempoHasta(String mensaje, String usuario);
+	
+	public abstract boolean esUnaCuenta(String mensaje);
+	public abstract String mostrarResultado(String mensaje, String usuario);
 			
 //	public abstract boolean esEfemeride(String mensaje);
 //	public abstract boolean esCalculoMatematico(String mensaje);
